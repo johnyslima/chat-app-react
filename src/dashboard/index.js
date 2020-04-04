@@ -1,14 +1,15 @@
-import React from 'react'
+import React from "react";
+import ChatList from "../chatlist";
 
 class Dashboard extends React.Component {
-
-    render() {
-        return (
-            <h1>
-                Dashboard page
-            </h1>
-        )
-    }
+  render() {
+    return (
+      <div>
+        <h1>Dashboard page</h1>
+        <ChatList></ChatList>
+      </div>
+    );
+  }
 }
 
-export default Dashboard
+export default Dashboard;

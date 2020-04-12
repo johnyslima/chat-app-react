@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react'
+import { Link } from 'react-router-dom'
 import {
   FormControl,
   InputLabel,
@@ -8,46 +8,46 @@ import {
   CssBaseline,
   Typography,
   Button,
-} from "@material-ui/core";
-import withStyles from "@material-ui/core/styles/withStyles"
-import styles from "./styles"
+} from '@material-ui/core'
+import withStyles from '@material-ui/core/styles/withStyles'
+import styles from './styles'
 
-const firebase = require("firebase");
+const firebase = require('firebase')
 
 class SignUp extends React.Component {
   constructor() {
-    super();
+    super()
     this.state = {
       email: null,
       password: null,
       passwordVerification: null,
-      singupError: "",
-    };
+      singupError: '',
+    }
   }
 
   formIsValid = () => this.state.password === this.state.passwordVerification;
 
   changeTyping = (type, e) => {
     switch (type) {
-      case "email":
-        this.setState({ email: e.target.value });
-        break;
-      case "password":
-        this.setState({ password: e.target.value });
-        break;
-      case "passwordVerification":
-        this.setState({ passwordVerification: e.target.value });
-        break;
+      case 'email':
+        this.setState({ email: e.target.value })
+        break
+      case 'password':
+        this.setState({ password: e.target.value })
+        break
+      case 'passwordVerification':
+        this.setState({ passwordVerification: e.target.value })
+        break
 
       default:
-        break;
+        break
     }
   };
 
   submitSignup = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!this.formIsValid()) {
-      this.setState({ singupError: "Password do not match" });
+      this.setState({ singupError: 'Password do not match' })
     }
 
     firebase
@@ -55,39 +55,39 @@ class SignUp extends React.Component {
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then(
         (authRes) => {
-          console.log(authRes);
+          console.log(authRes)
           const userObj = {
             email: authRes.user.email,
-          };
+          }
           firebase
             .firestore()
-            .collection("users")
+            .collection('users')
             .doc(this.state.email)
             .set(userObj)
             .then(
               () => {
-                this.props.history.push("/dashboard");
+                this.props.history.push('/dashboard')
               },
               (dbError) => {
-                console.log(dbError);
-                this.setState({ singupError: "Failed to add user" });
+                console.log(dbError)
+                this.setState({ singupError: 'Failed to add user' })
               }
-            );
+            )
         },
         (authError) => {
-          console.log(authError);
-          this.setState({ singupError: "Failed to add user" });
+          console.log(authError)
+          this.setState({ singupError: 'Failed to add user' })
         }
-      );
-    console.log("submit", this.state);
+      )
+    console.log('submit', this.state)
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes } = this.props
 
     return (
       <main className={classes.main}>
-        <CssBaseline></CssBaseline>
+        <CssBaseline />
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h5">
             Sign Up!
@@ -99,10 +99,10 @@ class SignUp extends React.Component {
               </InputLabel>
               <Input
                 autoComplete="email"
-                onChange={(e) => this.changeTyping("email", e)}
+                onChange={(e) => this.changeTyping('email', e)}
                 autoFocus
                 id="signup-email--input"
-              ></Input>
+              />
             </FormControl>
             <FormControl required fullWidth margin="normal">
               <InputLabel htmlFor="signup-password--input">
@@ -110,10 +110,10 @@ class SignUp extends React.Component {
               </InputLabel>
               <Input
                 type="password"
-                onChange={(e) => this.changeTyping("password", e)}
+                onChange={(e) => this.changeTyping('password', e)}
                 autoFocus
                 id="signup-password--input"
-              ></Input>
+              />
             </FormControl>
             <FormControl required fullWidth margin="normal">
               <InputLabel htmlFor="signup-password-verification--input">
@@ -121,10 +121,10 @@ class SignUp extends React.Component {
               </InputLabel>
               <Input
                 type="password"
-                onChange={(e) => this.changeTyping("passwordVerification", e)}
+                onChange={(e) => this.changeTyping('passwordVerification', e)}
                 autoFocus
                 id="signup-password-verification--input"
-              ></Input>
+              />
             </FormControl>
             <Button
               type="submit"
@@ -153,8 +153,8 @@ class SignUp extends React.Component {
           </Link>
         </Paper>
       </main>
-    );
+    )
   }
 }
 
-export default withStyles(styles)(SignUp);
+export default withStyles(styles)(SignUp)

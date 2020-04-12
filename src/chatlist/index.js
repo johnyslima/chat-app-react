@@ -21,7 +21,9 @@ class ChatList extends React.Component {
   }
 
   selectChat = (index) => {
+    const { selectChatFn } = this.props
     console.log(`select chat ${index}`)
+    selectChatFn(index)
   }
 
   render() {

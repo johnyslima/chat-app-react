@@ -1,5 +1,10 @@
 import React from 'react'
+import { Button } from '@material-ui/core'
+import withStyles from '@material-ui/core/styles/withStyles'
 import ChatList from '../chatlist'
+import styles from './styles'
+import ChatView from '../chatView'
+import ChatTextBox from '../chatTextBox'
 
 const firebase = require('firebase')
 
@@ -20,7 +25,34 @@ class Dashboard extends React.Component {
   }
 
   selectChat = (chatIndex) => {
-    console.log('selected chat', chatIndex)
+    this.setState({selectedChat: chatIndex})
+    console.log('index: ', chatIndex)
+  }
+
+  submitMessage = (message) => {
+    const { chats, selectedChat, email } = this.state
+    const docKey = this.buildDocKey(chats[selectedChat]
+      .users.filter((_usr) => _usr !== email))
+    firebase
+      .firestore()
+      .collection('chats')
+      .doc(docKey)
+      .update({
+        messages: firebase.firestore.FieldValue.arrayUnion({
+          sender: email,
+          message,
+          timestamp: Date.now()
+        }),
+        receiverHasRead: false
+      })
+  }
+
+  buildDocKey = (friend) => [this.state.email, friend].sort().join(':')
+
+  signOut = () => {
+    firebase
+      .auth()
+      .signOut()
   }
 
   componentDidMount = () => {
@@ -48,8 +80,13 @@ class Dashboard extends React.Component {
   }
 
   render() {
-    const { history } = this.props
-    const { chats, email, selectedChat } = this.state
+    const { history, classes } = this.props
+    const {
+      chats,
+      email,
+      selectedChat,
+      newChatFormVisible
+    } = this.state
     return (
       <div>
         <ChatList
@@ -59,9 +96,23 @@ class Dashboard extends React.Component {
           chats={chats}
           userEmail={email}
           selectedChatIndex={selectedChat} />
+        {
+          newChatFormVisible
+            ? null
+            : (
+              <ChatView user={email} chat={chats[selectedChat]} />
+            )
+        }
+        {
+          selectedChat !== null && !newChatFormVisible
+            ? <ChatTextBox submitMessageFn={this.submitMessage} />
+            : null
+
+        }
+        <Button onClick={this.signOut} className={classes.signOutBtn}>Sign out</Button>
       </div>
     )
   }
 }
 
-export default Dashboard
+export default withStyles(styles)(Dashboard)

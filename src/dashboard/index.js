@@ -26,7 +26,7 @@ class Dashboard extends React.Component {
   }
 
   selectChat = async (chatIndex) => {
-    await this.setState({selectedChat: chatIndex})
+    await this.setState({selectedChat: chatIndex, newChatFormVisible: false})
     this.messsageRead()
     console.log('index: ', chatIndex)
   }

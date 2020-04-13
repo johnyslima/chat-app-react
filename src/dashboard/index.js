@@ -5,6 +5,7 @@ import ChatList from '../chatlist'
 import styles from './styles'
 import ChatView from '../chatView'
 import ChatTextBox from '../chatTextBox'
+import NewChat from '../newChat'
 
 const firebase = require('firebase')
 
@@ -24,8 +25,9 @@ class Dashboard extends React.Component {
     this.setState({newChatFormVisible: true, selectedChat: null})
   }
 
-  selectChat = (chatIndex) => {
-    this.setState({selectedChat: chatIndex})
+  selectChat = async (chatIndex) => {
+    await this.setState({selectedChat: chatIndex})
+    this.messsageRead()
     console.log('index: ', chatIndex)
   }
 
@@ -53,6 +55,53 @@ class Dashboard extends React.Component {
     firebase
       .auth()
       .signOut()
+  }
+
+  clickedChatWhereNotSender = (chatIndex) => {
+    const { chats, email } = this.state
+    return (
+      chats[chatIndex].messages[chats[chatIndex].messages.length - 1].sender !== email
+    )
+  }
+
+  messsageRead = () => {
+    const { chats, selectedChat, email } = this.state
+    const docKey = this.buildDocKey(chats[selectedChat].users.filter((_usr) => _usr !== email))
+    if (this.clickedChatWhereNotSender(selectedChat)) {
+      firebase
+        .firestore()
+        .collection('chats')
+        .doc(docKey)
+        .update({ receiverHasRead: true })
+    } else {
+      console.log('Clicked message where the user was the sender')
+    }
+  }
+
+  goToChat = async (docKey, msg) => {
+    const usersInChat = docKey.split(':')
+    const chat = this.state.chats.find((_chat) => usersInChat.every((_user) => _chat.users.includes(_user)))
+    this.setState({ newChatFormVisible: false })
+    await this.selectChat(this.state.chats.indexOf(chat))
+    this.submitMessage(msg)
+  }
+
+  newChatSubmit = async (chatObj) => {
+    const docKey = this.buildDocKey(chatObj.sendTo)
+    await firebase
+      .firestore()
+      .collection('chats')
+      .doc(docKey)
+      .set({
+        receiverHasRead: false,
+        users: [this.state.email, chatObj.sendTo],
+        messages: [{
+          message: chatObj.message,
+          sender: this.state.email
+        }]
+      })
+    this.setState({ newChatFormVisible: false })
+    this.selectChat(this.state.chats.length - 1)
   }
 
   componentDidMount = () => {
@@ -105,9 +154,16 @@ class Dashboard extends React.Component {
         }
         {
           selectedChat !== null && !newChatFormVisible
-            ? <ChatTextBox submitMessageFn={this.submitMessage} />
+            ? <ChatTextBox messageReadFn={this.messsageRead} submitMessageFn={this.submitMessage} />
             : null
 
+        }
+        {
+          this.state.newChatFormVisible
+            ? (
+              <NewChat goToChatFn={this.goToChat} newChatSubmitFn={this.newChatSubmit} />
+            )
+            : null
         }
         <Button onClick={this.signOut} className={classes.signOutBtn}>Sign out</Button>
       </div>

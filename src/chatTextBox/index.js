@@ -25,7 +25,7 @@ class ChatTextBox extends React.Component {
   messageValid = (text) => text && text.replace(/\s/g, '').length
 
   userClickedInput = () => {
-    console.log('clicked input')
+    this.props.messageReadFn()
   }
 
   submitMessage = () => {

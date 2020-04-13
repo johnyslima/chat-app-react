@@ -18,6 +18,7 @@ class ChatList extends React.Component {
 
   newChat = () => {
     console.log('this is a new chat')
+    this.props.newChatBtnFn()
   }
 
   selectChat = (index) => {
@@ -25,6 +26,10 @@ class ChatList extends React.Component {
     console.log(`select chat ${index}`)
     selectChatFn(index)
   }
+
+  userIsSender = (chat) => (
+    chat.messages[chat.messages.length - 1].sender === this.props.userEmail
+  )
 
   render() {
 
@@ -73,6 +78,15 @@ class ChatList extends React.Component {
                           </Typography>
                         </>
                       )} />
+                    {
+                      _chat.receiverHasRead === false && !this.userIsSender(_chat)
+                        ? (
+                          <ListItemIcon>
+                            <NotificationImportant className={classes.unreadMessage} />
+                          </ListItemIcon>
+                        )
+                        : null
+                    }
                   </ListItem>
                   <Divider />
                 </div>
